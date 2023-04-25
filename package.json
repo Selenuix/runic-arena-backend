@@ -1,0 +1,22 @@
+{
+  "name": "runic-arena",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon ./bin/www"
+  },
+  "dependencies": {
+    "@prisma/client": "^4.13.0",
+    "body-parser": "^1.20.2",
+    "debug": "~2.6.9",
+    "express": "^4.18.2",
+    "http-errors": "~1.6.3",
+    "morgan": "~1.9.1",
+    "multer": "^1.4.5-lts.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^4.6.2"
+  },
+  "devDependencies": {
+    "prisma": "^4.13.0"
+  }
+}
