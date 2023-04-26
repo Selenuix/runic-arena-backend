@@ -11,20 +11,24 @@ datasource db {
 }
 
 model Cards {
-  id       Int    @id @default(autoincrement())
-  name     String @unique
+  id       Int     @id @default(autoincrement())
+  name     String  @unique
   image    String
   power    Int
+  type     Types   @relation(fields: [type_id], references: [id])
   type_id  Int
+  class    Classes @relation(fields: [class_id], references: [id])
   class_id Int
 }
 
 model Types {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  Cards Cards[]
 }
 
 model Classes {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  Cards Cards[]
 }

@@ -7,7 +7,17 @@ const multer = require('multer')
 const upload = multer()
 
 router.get('/', async function (req, res, next) {
-    const cards = await prisma.cards.findMany({})
+    const cards = await prisma.cards.findMany({
+        select: {
+            id: true,
+            name: true,
+            image: true,
+            power: true,
+            type: {select: {id: true, name: true}},
+            class: {select: {id: true, name: true}}
+        },
+    });
+
     res.send(cards);
 });
 
@@ -18,7 +28,7 @@ router.post('/', upload.none(), async function (req, res, next) {
     type_id = parseInt(type_id)
     class_id = parseInt(class_id)
 
-    const card = await prisma.cards.create({
+    await prisma.cards.create({
         data: {
             name: name,
             image: image,
@@ -39,7 +49,15 @@ router.get('/:id(\\d+)', async function (req, res, next) {
     const card = await prisma.cards.findUnique({
         where: {
             id: cardId,
-        }
+        },
+        select: {
+            id: true,
+            name: true,
+            image: true,
+            power: true,
+            type: {select: {id: true, name: true}},
+            class: {select: {id: true, name: true}}
+        },
     })
 
     res.send(card)
