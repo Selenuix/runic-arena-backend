@@ -2,7 +2,7 @@ const createError = require('http-errors');
 const express = require('express');
 const logger = require('morgan');
 
-const multer = require('multer')
+const cors = require('cors')
 
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
@@ -51,6 +51,8 @@ app.use(
 
 app.use(logger('dev'));
 app.use(express.json());
+
+app.use(cors())
 
 app.use('/cards', cardsRouter);
 app.use('/types', typesRouter);
