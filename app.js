@@ -4,50 +4,11 @@ const logger = require('morgan');
 
 const cors = require('cors')
 
-const swaggerJsdoc = require("swagger-jsdoc");
-const swaggerUi = require("swagger-ui-express");
-
-const options = {
-    definition: {
-        openapi: "3.1.0",
-        "swagger": "2.0",
-        info: {
-            title: "Runic Arena",
-            version: "0.0.0",
-            description:
-                "A simple TCG",
-            license: {
-                name: "MIT",
-                url: "https://spdx.org/licenses/MIT.html",
-            },
-            contact: {
-                name: "Selenuix",
-                url: "https://ciszekanthony.fr",
-                email: "contact@ciszekanthony.fr",
-            },
-        },
-        servers: [
-            {
-                url: "http://localhost:3000",
-            },
-        ],
-    },
-    apis: ["./routes/*.js"],
-};
-
-const specs = swaggerJsdoc(options);
-
 const cardsRouter = require('./routes/cards');
 const typesRouter = require('./routes/types');
 const classesRouter = require('./routes/classes');
 
 const app = express();
-
-app.use(
-    "/swagger",
-    swaggerUi.serve,
-    swaggerUi.setup(specs, {explorer: true})
-);
 
 app.use(logger('dev'));
 app.use(express.json());
