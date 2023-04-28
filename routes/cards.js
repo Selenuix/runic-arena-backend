@@ -4,7 +4,20 @@ const {PrismaClient} = require('@prisma/client')
 const prisma = new PrismaClient()
 
 const multer = require('multer')
-const upload = multer()
+const {extname} = require("path");
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'public/uploads')
+    },
+    filename: function (req, file, cb) {
+        const fileExt = extname(file.originalname)
+        const newFilename = `${file.fieldname}-${Date.now()}${fileExt}`
+        cb(null, newFilename)
+    }
+})
+
+const upload = multer({storage: storage})
 
 router.get('/', async function (req, res, next) {
     const cards = await prisma.cards.findMany({
@@ -21,12 +34,13 @@ router.get('/', async function (req, res, next) {
     res.send(cards);
 });
 
-router.post('/', upload.none(), async function (req, res, next) {
+router.post('/', upload.single('image'), async function (req, res, next) {
     let {name, image, power, type_id, class_id} = req.body
 
     power = parseInt(power)
     type_id = parseInt(type_id)
     class_id = parseInt(class_id)
+    image = req.file.filename
 
     await prisma.cards.create({
         data: {
