@@ -86,7 +86,7 @@ router.delete('/:id(\\d+)', async (req, res, next) => {
     res.send('Gotcha')
 })
 
-router.put('/:id(\\d+)', upload.none(), async (req, res, next) => {
+router.patch('/:id(\\d+)', upload.single('image'), async (req, res, next) => {
     const cardId = parseInt(req.params.id)
     let {name, image, power, type_id, class_id} = req.body
 
@@ -94,7 +94,7 @@ router.put('/:id(\\d+)', upload.none(), async (req, res, next) => {
     type_id = parseInt(type_id)
     class_id = parseInt(class_id)
 
-    const card = await prisma.cards.update({
+    await prisma.cards.update({
         data: {
             name: name,
             image: image,
@@ -104,6 +104,7 @@ router.put('/:id(\\d+)', upload.none(), async (req, res, next) => {
         },
         where: {id: cardId},
     })
+
     res.send('Gotcha')
 })
 
