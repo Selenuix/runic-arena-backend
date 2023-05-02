@@ -21,9 +21,7 @@ router.post('/', upload.none(), async function (req, res, next) {
     })
 
     res.send('Gotcha')
-
 })
-
 
 router.get('/:id(\\d+)', async function (req, res, next) {
     const typeId = parseInt(req.params.id)
@@ -37,11 +35,11 @@ router.get('/:id(\\d+)', async function (req, res, next) {
     res.send(archetype)
 })
 
-router.delete('/:id(\\d+)', async (req, res, next) => {
-    const typeId = parseInt(req.params.id)
+router.delete('/:id', async (req, res, next) => {
+    const classId = parseInt(req.params.id)
 
     await prisma.classes.delete({
-        where: {id: typeId},
+        where: {id: classId},
     })
 
     res.send('Gotcha')

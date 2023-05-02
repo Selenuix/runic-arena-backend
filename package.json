@@ -6,7 +6,6 @@
     "start": "nodemon ./bin/www"
   },
   "dependencies": {
-    "@prisma/client": "^4.13.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "debug": "~2.6.9",

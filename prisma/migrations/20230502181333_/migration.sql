@@ -9,7 +9,7 @@ CREATE TABLE `Cards` (
 
     UNIQUE INDEX `Cards_name_key`(`name`),
     PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `Types` (
@@ -18,7 +18,7 @@ CREATE TABLE `Types` (
 
     UNIQUE INDEX `Types_name_key`(`name`),
     PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `Classes` (
@@ -27,10 +27,4 @@ CREATE TABLE `Classes` (
 
     UNIQUE INDEX `Classes_name_key`(`name`),
     PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-
--- AddForeignKey
-ALTER TABLE `Cards` ADD CONSTRAINT `Cards_type_id_fkey` FOREIGN KEY (`type_id`) REFERENCES `Types`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `Cards` ADD CONSTRAINT `Cards_class_id_fkey` FOREIGN KEY (`class_id`) REFERENCES `Classes`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
