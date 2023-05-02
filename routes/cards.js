@@ -3,8 +3,10 @@ const router = express.Router();
 const {PrismaClient} = require('@prisma/client')
 const prisma = new PrismaClient()
 
+require('dotenv').config()
+
 const multer = require('multer')
-const {extname} = require("path");
+const {extname, join} = require("path");
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -40,7 +42,7 @@ router.post('/', upload.single('image'), async function (req, res, next) {
     power = parseInt(power)
     type_id = parseInt(type_id)
     class_id = parseInt(class_id)
-    image = req.file.filename
+    image = process.env.UPLOADS_URL + req.file.filename
 
     await prisma.cards.create({
         data: {
@@ -93,6 +95,7 @@ router.patch('/:id(\\d+)', upload.single('image'), async (req, res, next) => {
     power = parseInt(power)
     type_id = parseInt(type_id)
     class_id = parseInt(class_id)
+    image = process.env.UPLOADS_URL + req.file.filename
 
     await prisma.cards.update({
         data: {
