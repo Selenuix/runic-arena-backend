@@ -9,25 +9,15 @@ const multer = require('multer')
 const minio = Minio = require('minio')
 const {extname, join} = require("path");
 
+const storage = multer.memoryStorage()
+const upload = multer({storage: storage})
+
 const minioClient = new minio.Client({
     endPoint: process.env.MINIO_URL,
     useSSL: true,
     accessKey: process.env.MINIO_ACCESS_KEY,
     secretKey: process.env.MINIO_SECRET_KEY
-});
-
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'public/uploads')
-    },
-    filename: function (req, file, cb) {
-        const fileExt = extname(file.originalname)
-        const newFilename = `${file.fieldname}-${Date.now()}${fileExt}`
-        cb(null, newFilename)
-    }
 })
-
-const upload = multer({storage: storage})
 
 router.get('/', async function (req, res, next) {
     const cards = await prisma.cards.findMany({
@@ -38,6 +28,9 @@ router.get('/', async function (req, res, next) {
             power: true,
             type: {select: {id: true, name: true}},
             class: {select: {id: true, name: true}}
+        },
+        orderBy: {
+            id: 'desc',
         },
     });
 
@@ -50,20 +43,27 @@ router.post('/', upload.single('image'), async function (req, res, next) {
     power = parseInt(power)
     type_id = parseInt(type_id)
     class_id = parseInt(class_id)
-    // image = process.env.UPLOADS_URL + req.file.filename
-    image = req.file.filename
 
-    // Using fPutObject API upload your file to the bucket dc-runic-arena.
-    minioClient.fPutObject(process.env.MINIO_BUCKET, image, `public/uploads/${image}`, function (err, etag) {
+    let fileName = req.file.originalname
+    let fileData = req.file.buffer
+
+    const metaData = {
+        'Content-Type': req.file.mimetype
+    }
+
+    // TODO: rename with and add the correct extension again
+
+    // Using fPutObject API upload your file to the bucket.
+    minioClient.putObject(process.env.MINIO_BUCKET, fileName, fileData, metaData, (err, etag) => {
         if (err) return console.log(err)
         console.log('File uploaded successfully.')
-        image = process.env.MINIO_URL + req.file.filename
+        image = process.env.MINIO_URL + fileName
     });
 
     await prisma.cards.create({
         data: {
             name: name,
-            image: image,
+            image: fileName,
             power: power,
             type_id: type_id,
             class_id: class_id
@@ -139,7 +139,7 @@ router.delete('/:id(\\d+)', async (req, res, next) => {
     res.send('Gotcha')
 })
 
-router.patch('/:id(\\d+)', upload.single('image'), async (req, res, next) => {
+router.patch('/:id(\\d+)', /*upload.single('image'),*/ async (req, res, next) => {
     const cardId = parseInt(req.params.id)
     let {name, image, power, type_id, class_id} = req.body
 
