@@ -7,7 +7,11 @@ const multer = require('multer')
 const upload = multer()
 
 router.get('/', async function (req, res, next) {
-    const archetypes = await prisma.classes.findMany({})
+    const archetypes = await prisma.classes.findMany({
+        orderBy: {
+            name: 'asc'
+        }
+    })
     res.send(archetypes);
 });
 

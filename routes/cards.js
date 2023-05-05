@@ -10,7 +10,19 @@ const minio = Minio = require('minio')
 const {extname, join} = require("path");
 
 const storage = multer.memoryStorage()
-const upload = multer({storage: storage})
+/*const upload = multer({
+    storage: storage,
+    limits: {fileSize: 5 * 1000 * 1000}
+})*/
+
+const upload = multer({
+    storage: storage, limits: {fileSize: 5 * 1000 * 1000}, fileFilter: (req, file, cb) => {
+        // Rename the file here
+        const fileExt = extname(file.originalname)
+        file.originalname = `${file.fieldname}-${Date.now()}${fileExt}`
+        cb(null, true)
+    }
+})
 
 const minioClient = new minio.Client({
     endPoint: process.env.MINIO_URL,
@@ -26,11 +38,11 @@ router.get('/', async function (req, res, next) {
             name: true,
             image: true,
             power: true,
-            type: {select: {id: true, name: true}},
-            class: {select: {id: true, name: true}}
+            type: true,
+            class: true
         },
         orderBy: {
-            id: 'desc',
+            name: 'asc',
         },
     });
 
