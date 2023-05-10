@@ -8,7 +8,6 @@ require('dotenv').config()
 const multer = require('multer')
 const minio = Minio = require('minio')
 const {extname, join} = require("path");
-const {getMonsterName} = require("../utils/randomizer");
 
 const storage = multer.memoryStorage()
 
@@ -123,8 +122,6 @@ router.get('/:id(\\d+)/image', async function (req, res, next) {
         },
     })
 
-    console.log(card)
-
     let data
 
     minioClient.getObject(process.env.MINIO_BUCKET, card.image, function (err, objStream) {
@@ -182,7 +179,14 @@ router.patch('/:id(\\d+)', upload.single('image'), async (req, res, next) => {
 })
 
 router.get('/name-generator', async (req, res) => {
-    res.status(200).send(getMonsterName)
+    const monsterNames = ['Ancient Dragon', 'Chaos Mage', 'Crystal Dragon', 'Crystal Titan', 'Cursed Knight', 'Demon Lord', 'Divine Guardian', 'Forest Guardian', 'Goblin Chieftain', 'Ice Queen', 'Inferno Demon', 'Moonlight Dragon', 'Necromancer', 'Ocean Guardian', 'Phoenix Feather', 'Sky Elemental', 'Spectral Knight', 'Thunder God', 'Thunderbird', 'Vampire Lord']
+    const monsterAdjectives = ['Adorable', 'Friendly', 'Playful', 'Affectionate', 'Curious', 'Gentle', 'Loyal', 'Helpful', 'Cheerful', 'Brave', 'Ferocious', 'Vicious', 'Malevolent', 'Cruel', 'Monstrous', 'Terrifying', 'Malicious', 'Sinister', 'Diabolical', 'Savage']
+
+    let j = Math.floor(Math.random() * monsterAdjectives.length)
+    let i = Math.floor(Math.random() * monsterNames.length)
+
+    let monsterName = monsterAdjectives[j] + ' ' + monsterNames[i]
+    res.send(monsterName)
 })
 
 module.exports = router;
