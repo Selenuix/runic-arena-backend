@@ -7,6 +7,7 @@ const cors = require('cors')
 const cardsRouter = require('./routes/cards');
 const typesRouter = require('./routes/types');
 const classesRouter = require('./routes/classes');
+const passiveCapabilitiesRouter = require('./routes/passive-capabilities');
 const {join} = require("path");
 const {urlencoded} = require("body-parser");
 
@@ -22,6 +23,7 @@ app.use(cors())
 app.use('/cards', cardsRouter);
 app.use('/types', typesRouter);
 app.use('/classes', classesRouter);
+app.use('/passive-capabilities', passiveCapabilitiesRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
