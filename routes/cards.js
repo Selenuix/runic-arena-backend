@@ -10,13 +10,11 @@ const minio = Minio = require('minio')
 const {extname, join} = require("path");
 
 const storage = multer.memoryStorage()
-/*const upload = multer({
-    storage: storage,
-    limits: {fileSize: 5 * 1000 * 1000}
-})*/
 
 const upload = multer({
-    storage: storage, limits: {fileSize: 5 * 1000 * 1000}, fileFilter: (req, file, cb) => {
+    storage: storage,
+    limits: {fileSize: 5 * 1000 * 1000},
+    fileFilter: (req, file, cb) => {
         // Rename the file here
         const fileExt = extname(file.originalname)
         file.originalname = `${file.fieldname}-${Date.now()}${fileExt}`
@@ -163,7 +161,7 @@ router.patch('/:id(\\d+)', upload.single('image'), async (req, res, next) => {
     class_id = parseInt(class_id)
     passive_capability_id = parseInt(passive_capability_id)
 
-    image = process.env.UPLOADS_URL + req.file.originalname
+    image = process.env.UPLOADS_URL + image
 
     await prisma.cards.update({
         data: {

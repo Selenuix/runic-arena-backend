@@ -66,6 +66,9 @@ router.patch('/:id(\\d+)', async (req, res, next) => {
             description: description
         },
         where: {id: passiveCapabilityId},
+        orderBy: {
+            name: 'ASC'
+        }
     })
 
     res.send('Gotcha')
