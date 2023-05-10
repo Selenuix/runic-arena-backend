@@ -1,16 +1,13 @@
 const express = require('express');
+const cors = require('cors')
 const router = express.Router();
 const {PrismaClient} = require('@prisma/client')
 const prisma = new PrismaClient()
-const cors = require('cors')
-
-require('dotenv').config()
-
 const multer = require('multer')
 const minio = Minio = require('minio')
 const {extname, join} = require("path");
-
 const storage = multer.memoryStorage()
+require('dotenv').config()
 
 const upload = multer({
     storage: storage,
@@ -30,8 +27,8 @@ const minioClient = new minio.Client({
     secretKey: process.env.MINIO_SECRET_KEY
 })
 
-router.get('/', async function (req, res, next) {
-    const cards = await prisma.cards.findMany({
+router.get('/', cors(), async function (req, res, next) {
+    /*const cards = await prisma.cards.findMany({
         select: {
             id: true,
             name: true,
@@ -45,7 +42,17 @@ router.get('/', async function (req, res, next) {
         orderBy: {
             name: 'asc',
         },
-    });
+    })*/
+    const cards = await prisma.cards.findMany({
+        include: {
+            passive_capability: true,
+            active_capabilities: {
+                include: {
+                    active_capability: true
+                }
+            }
+        }
+    })
 
     res.send(cards);
 });
@@ -99,7 +106,8 @@ router.get('/:id(\\d+)', async function (req, res, next) {
             power: true,
             type: true,
             class: true,
-            passive_capability: true
+            passive_capability: true,
+            active_capabilities: true
         }
     })
 
@@ -120,7 +128,8 @@ router.get('/:id(\\d+)/image', async function (req, res, next) {
             power: true,
             type: true,
             class: true,
-            passive_capability: true
+            passive_capability: true,
+            active_capabilities: true
         },
     })
 

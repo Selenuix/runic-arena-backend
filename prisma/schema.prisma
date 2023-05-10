@@ -12,16 +12,17 @@ datasource db {
 }
 
 model Cards {
-  id                    Int                  @id @default(autoincrement())
-  name                  String               @unique
+  id                    Int                         @id @default(autoincrement())
+  name                  String                      @unique
   image                 String
   power                 Int
-  type                  Types                @relation(fields: [type_id], references: [id])
+  type                  Types                       @relation(fields: [type_id], references: [id])
   type_id               Int
-  class                 Classes              @relation(fields: [class_id], references: [id])
+  class                 Classes                     @relation(fields: [class_id], references: [id])
   class_id              Int
-  passive_capability    PassiveCapabilities? @relation(fields: [passive_capability_id], references: [id])
+  passive_capability    PassiveCapabilities?        @relation(fields: [passive_capability_id], references: [id])
   passive_capability_id Int?
+  active_capabilities   ActiveCapabilitiesOnCards[]
 }
 
 model Types {
@@ -41,4 +42,21 @@ model PassiveCapabilities {
   name        String  @unique
   description String
   cards       Cards[]
+}
+
+model ActiveCapabilities {
+  id                         Int                         @unique @default(autoincrement())
+  name                       String
+  description                String
+  type                       String
+  cards                      ActiveCapabilitiesOnCards[]
+}
+
+model ActiveCapabilitiesOnCards {
+  card                 Cards              @relation(fields: [card_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  card_id              Int
+  active_capability    ActiveCapabilities @relation(fields: [active_capability_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  active_capability_id Int
+
+  @@id([card_id, active_capability_id])
 }
