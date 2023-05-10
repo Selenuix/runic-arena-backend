@@ -17,7 +17,6 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(urlencoded({extended: true}));
 
-// app.use('/public/uploads', express.static('public/uploads'))
 app.use(cors())
 
 app.use('/cards', cardsRouter);

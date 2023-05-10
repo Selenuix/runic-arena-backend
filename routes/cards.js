@@ -8,6 +8,7 @@ require('dotenv').config()
 const multer = require('multer')
 const minio = Minio = require('minio')
 const {extname, join} = require("path");
+const {getMonsterName} = require("../utils/randomizer");
 
 const storage = multer.memoryStorage()
 
@@ -122,6 +123,8 @@ router.get('/:id(\\d+)/image', async function (req, res, next) {
         },
     })
 
+    console.log(card)
+
     let data
 
     minioClient.getObject(process.env.MINIO_BUCKET, card.image, function (err, objStream) {
@@ -176,6 +179,10 @@ router.patch('/:id(\\d+)', upload.single('image'), async (req, res, next) => {
     })
 
     res.send('Gotcha')
+})
+
+router.get('/name-generator', async (req, res) => {
+    res.status(200).send(getMonsterName)
 })
 
 module.exports = router;
