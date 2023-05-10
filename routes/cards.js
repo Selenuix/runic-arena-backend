@@ -39,7 +39,8 @@ router.get('/', async function (req, res, next) {
             image: true,
             power: true,
             type: true,
-            class: true
+            class: true,
+            passive_capability: true
         },
         orderBy: {
             name: 'asc',
@@ -50,11 +51,12 @@ router.get('/', async function (req, res, next) {
 });
 
 router.post('/', upload.single('image'), async function (req, res, next) {
-    let {name, image, power, type_id, class_id} = req.body
+    let {name, image, power, type_id, class_id, passive_capability_id} = req.body
 
     power = parseInt(power)
     type_id = parseInt(type_id)
     class_id = parseInt(class_id)
+    passive_capability_id = parseInt(passive_capability_id)
 
     let fileName = req.file.originalname
     let fileData = req.file.buffer
@@ -62,8 +64,6 @@ router.post('/', upload.single('image'), async function (req, res, next) {
     const metaData = {
         'Content-Type': req.file.mimetype
     }
-
-    // TODO: rename with and add the correct extension again
 
     // Using fPutObject API upload your file to the bucket.
     minioClient.putObject(process.env.MINIO_BUCKET, fileName, fileData, metaData, (err, etag) => {
@@ -78,7 +78,8 @@ router.post('/', upload.single('image'), async function (req, res, next) {
             image: fileName,
             power: power,
             type_id: type_id,
-            class_id: class_id
+            class_id: class_id,
+            passive_capability_id: passive_capability_id
         }
     })
     res.send('Gotcha')
@@ -96,9 +97,10 @@ router.get('/:id(\\d+)', async function (req, res, next) {
             name: true,
             image: true,
             power: true,
-            type: {select: {id: true, name: true}},
-            class: {select: {id: true, name: true}}
-        },
+            type: true,
+            class: true,
+            passive_capability: true
+        }
     })
 
     res.send(card)
@@ -116,8 +118,9 @@ router.get('/:id(\\d+)/image', async function (req, res, next) {
             name: true,
             image: true,
             power: true,
-            type: {select: {id: true, name: true}},
-            class: {select: {id: true, name: true}}
+            type: true,
+            class: true,
+            passive_capability: true
         },
     })
 
@@ -151,14 +154,16 @@ router.delete('/:id(\\d+)', async (req, res, next) => {
     res.send('Gotcha')
 })
 
-router.patch('/:id(\\d+)', /*upload.single('image'),*/ async (req, res, next) => {
+router.patch('/:id(\\d+)', upload.single('image'), async (req, res, next) => {
     const cardId = parseInt(req.params.id)
-    let {name, image, power, type_id, class_id} = req.body
+    let {name, image, power, type_id, class_id, passive_capability_id} = req.body
 
     power = parseInt(power)
     type_id = parseInt(type_id)
     class_id = parseInt(class_id)
-    image = process.env.UPLOADS_URL + req.file.filename
+    passive_capability_id = parseInt(passive_capability_id)
+
+    image = process.env.UPLOADS_URL + req.file.originalname
 
     await prisma.cards.update({
         data: {
@@ -166,7 +171,8 @@ router.patch('/:id(\\d+)', /*upload.single('image'),*/ async (req, res, next) =>
             image: image,
             power: power,
             type_id: type_id,
-            class_id: class_id
+            class_id: class_id,
+            passive_capability_id: passive_capability_id
         },
         where: {id: cardId},
     })

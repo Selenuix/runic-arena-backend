@@ -12,14 +12,16 @@ datasource db {
 }
 
 model Cards {
-  id       Int     @id @default(autoincrement())
-  name     String  @unique
-  image    String
-  power    Int
-  type     Types   @relation(fields: [type_id], references: [id])
-  type_id  Int
-  class    Classes @relation(fields: [class_id], references: [id])
-  class_id Int
+  id                    Int                  @id @default(autoincrement())
+  name                  String               @unique
+  image                 String
+  power                 Int
+  type                  Types                @relation(fields: [type_id], references: [id])
+  type_id               Int
+  class                 Classes              @relation(fields: [class_id], references: [id])
+  class_id              Int
+  passive_capability    PassiveCapabilities? @relation(fields: [passive_capability_id], references: [id])
+  passive_capability_id Int?
 }
 
 model Types {
@@ -32,4 +34,11 @@ model Classes {
   id    Int     @id @default(autoincrement())
   name  String  @unique
   Cards Cards[]
+}
+
+model PassiveCapabilities {
+  id          Int     @unique @default(autoincrement())
+  name        String  @unique
+  description String
+  cards       Cards[]
 }
