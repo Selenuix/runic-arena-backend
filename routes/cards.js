@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {PrismaClient} = require('@prisma/client')
 const prisma = new PrismaClient()
+const cors = require('cors')
 
 require('dotenv').config()
 
@@ -38,7 +39,8 @@ router.get('/', async function (req, res, next) {
             power: true,
             type: true,
             class: true,
-            passive_capability: true
+            passive_capability: true,
+            active_capabilities: true
         },
         orderBy: {
             name: 'asc',

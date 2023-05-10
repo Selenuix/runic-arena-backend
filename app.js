@@ -22,7 +22,12 @@ app.use('/types', typesRouter)
 app.use('/classes', classesRouter)
 app.use('/passive-capabilities', passiveCapabilitiesRouter)
 
-app.use(cors())
+const corsOptions = {
+    origin: 'http://localhost:5173/',
+    optionsSuccessStatus: 204
+}
+
+app.use(cors(corsOptions))
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
