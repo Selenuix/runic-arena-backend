@@ -1,16 +1,14 @@
 const express = require('express');
+const cors = require('cors')
 const router = express.Router();
 const {PrismaClient} = require('@prisma/client')
 const prisma = new PrismaClient()
-const cors = require('cors')
-
-require('dotenv').config()
-
 const multer = require('multer')
 const minio = Minio = require('minio')
 const {extname, join} = require("path");
-
 const storage = multer.memoryStorage()
+
+require('dotenv').config()
 
 const upload = multer({
     storage: storage,
@@ -30,33 +28,67 @@ const minioClient = new minio.Client({
     secretKey: process.env.MINIO_SECRET_KEY
 })
 
-router.get('/', async function (req, res, next) {
+router.get('/', cors(), async function (req, res, next) {
     const cards = await prisma.cards.findMany({
-        select: {
-            id: true,
-            name: true,
-            image: true,
-            power: true,
+        include: {
+            passive_capability: true,
             type: true,
             class: true,
-            passive_capability: true,
-            active_capabilities: true
-        },
-        orderBy: {
-            name: 'asc',
-        },
-    });
+            active_capabilities: {
+                include: {
+                    active_capability: true
+                }
+            }
+        }
+    })
 
     res.send(cards);
 });
 
-router.post('/', upload.single('image'), async function (req, res, next) {
-    let {name, image, power, type_id, class_id, passive_capability_id} = req.body
+router.post('/', cors(), upload.single('image'), async function (req, res, next) {
+    let {
+        name,
+        image,
+        power,
+        type_id,
+        class_id,
+        passive_capability_id,
+        active_capability_one_id,
+        active_capability_two_id
+    } = req.body
 
     power = parseInt(power)
     type_id = parseInt(type_id)
     class_id = parseInt(class_id)
     passive_capability_id = parseInt(passive_capability_id)
+    active_capability_one_id = parseInt(active_capability_one_id)
+    active_capability_two_id = parseInt(active_capability_two_id)
+
+    const activeCapabilities = [];
+
+    if (req.body.active_capability_one_id) {
+        const capabilityOne = {
+            active_capability: {
+                connect: {
+                    id: active_capability_one_id
+                },
+            },
+        }
+
+        activeCapabilities.push(capabilityOne);
+    }
+
+    if (req.body.active_capability_two_id) {
+        const capabilityTwo = {
+            active_capability: {
+                connect: {
+                    id: active_capability_two_id
+                },
+            },
+        }
+
+        activeCapabilities.push(capabilityTwo);
+    }
 
     let fileName = req.file.originalname
     let fileData = req.file.buffer
@@ -70,7 +102,7 @@ router.post('/', upload.single('image'), async function (req, res, next) {
         if (err) return console.log(err)
         console.log('File uploaded successfully.')
         image = process.env.MINIO_URL + fileName
-    });
+    })
 
     await prisma.cards.create({
         data: {
@@ -79,13 +111,16 @@ router.post('/', upload.single('image'), async function (req, res, next) {
             power: power,
             type_id: type_id,
             class_id: class_id,
-            passive_capability_id: passive_capability_id
+            passive_capability_id: passive_capability_id,
+            active_capabilities: {
+                create: activeCapabilities
+            },
         }
     })
     res.send('Gotcha')
 })
 
-router.get('/:id(\\d+)', async function (req, res, next) {
+router.get('/:id(\\d+)', cors(), async function (req, res, next) {
     const cardId = parseInt(req.params.id)
 
     const card = await prisma.cards.findUnique({
@@ -99,14 +134,15 @@ router.get('/:id(\\d+)', async function (req, res, next) {
             power: true,
             type: true,
             class: true,
-            passive_capability: true
+            passive_capability: true,
+            active_capabilities: true
         }
     })
 
     res.send(card)
 })
 
-router.get('/:id(\\d+)/image', async function (req, res, next) {
+router.get('/:id(\\d+)/image', cors(), async function (req, res, next) {
     const cardId = parseInt(req.params.id)
 
     const card = await prisma.cards.findUnique({
@@ -120,7 +156,8 @@ router.get('/:id(\\d+)/image', async function (req, res, next) {
             power: true,
             type: true,
             class: true,
-            passive_capability: true
+            passive_capability: true,
+            active_capabilities: true
         },
     })
 
@@ -145,7 +182,7 @@ router.get('/:id(\\d+)/image', async function (req, res, next) {
     })
 })
 
-router.delete('/:id(\\d+)', async (req, res, next) => {
+router.delete('/:id(\\d+)', cors(), async (req, res, next) => {
     const cardId = parseInt(req.params.id)
     const card = await prisma.cards.delete({
         where: {id: cardId},
@@ -154,7 +191,18 @@ router.delete('/:id(\\d+)', async (req, res, next) => {
     res.send('Gotcha')
 })
 
-router.patch('/:id(\\d+)', upload.single('image'), async (req, res, next) => {
+router.get('/name-generator', cors(), async (req, res) => {
+    const monsterNames = ['Ancient Dragon', 'Chaos Mage', 'Crystal Dragon', 'Crystal Titan', 'Cursed Knight', 'Demon Lord', 'Divine Guardian', 'Forest Guardian', 'Goblin Chieftain', 'Ice Queen', 'Inferno Demon', 'Moonlight Dragon', 'Necromancer', 'Ocean Guardian', 'Phoenix Feather', 'Sky Elemental', 'Spectral Knight', 'Thunder God', 'Thunderbird', 'Vampire Lord']
+    const monsterAdjectives = ['Adorable', 'Friendly', 'Playful', 'Affectionate', 'Curious', 'Gentle', 'Loyal', 'Helpful', 'Cheerful', 'Brave', 'Ferocious', 'Vicious', 'Malevolent', 'Cruel', 'Monstrous', 'Terrifying', 'Malicious', 'Sinister', 'Diabolical', 'Savage']
+
+    let j = Math.floor(Math.random() * monsterAdjectives.length)
+    let i = Math.floor(Math.random() * monsterNames.length)
+
+    let monsterName = monsterAdjectives[j] + ' ' + monsterNames[i]
+    res.json(monsterName)
+})
+
+router.patch('/:id(\\d+)', cors(), upload.single('image'), async (req, res, next) => {
     const cardId = parseInt(req.params.id)
     let {name, image, power, type_id, class_id, passive_capability_id} = req.body
 
@@ -180,15 +228,5 @@ router.patch('/:id(\\d+)', upload.single('image'), async (req, res, next) => {
     res.send('Gotcha')
 })
 
-router.get('/name-generator', async (req, res) => {
-    const monsterNames = ['Ancient Dragon', 'Chaos Mage', 'Crystal Dragon', 'Crystal Titan', 'Cursed Knight', 'Demon Lord', 'Divine Guardian', 'Forest Guardian', 'Goblin Chieftain', 'Ice Queen', 'Inferno Demon', 'Moonlight Dragon', 'Necromancer', 'Ocean Guardian', 'Phoenix Feather', 'Sky Elemental', 'Spectral Knight', 'Thunder God', 'Thunderbird', 'Vampire Lord']
-    const monsterAdjectives = ['Adorable', 'Friendly', 'Playful', 'Affectionate', 'Curious', 'Gentle', 'Loyal', 'Helpful', 'Cheerful', 'Brave', 'Ferocious', 'Vicious', 'Malevolent', 'Cruel', 'Monstrous', 'Terrifying', 'Malicious', 'Sinister', 'Diabolical', 'Savage']
-
-    let j = Math.floor(Math.random() * monsterAdjectives.length)
-    let i = Math.floor(Math.random() * monsterNames.length)
-
-    let monsterName = monsterAdjectives[j] + ' ' + monsterNames[i]
-    res.send(monsterName)
-})
 
 module.exports = router;

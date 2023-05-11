@@ -8,6 +8,7 @@ const cardsRouter = require('./routes/cards')
 const typesRouter = require('./routes/types')
 const classesRouter = require('./routes/classes')
 const passiveCapabilitiesRouter = require('./routes/passive-capabilities')
+const activeCapabilitiesRouter = require('./routes/active-capabilities')
 const {join} = require("path")
 const {urlencoded} = require("body-parser")
 
@@ -17,17 +18,14 @@ app.use(logger('dev'))
 app.use(express.json())
 app.use(urlencoded({extended: true}))
 
+app.use(cors())
+
 app.use('/cards', cardsRouter)
 app.use('/types', typesRouter)
 app.use('/classes', classesRouter)
 app.use('/passive-capabilities', passiveCapabilitiesRouter)
+app.use('/active-capabilities', activeCapabilitiesRouter)
 
-const corsOptions = {
-    origin: 'http://localhost:5173/',
-    optionsSuccessStatus: 204
-}
-
-app.use(cors(corsOptions))
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

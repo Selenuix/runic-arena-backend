@@ -1,12 +1,13 @@
-const express = require('express');
-const router = express.Router();
+const express = require('express')
+const cors = require('cors')
+const router = express.Router()
 const {PrismaClient} = require('@prisma/client')
 const prisma = new PrismaClient()
 
 const multer = require('multer')
 const upload = multer()
 
-router.get('/', async function (req, res, next) {
+router.get('/', cors(), async function (req, res, next) {
     const archetypes = await prisma.classes.findMany({
         orderBy: {
             name: 'asc'
@@ -15,7 +16,7 @@ router.get('/', async function (req, res, next) {
     res.send(archetypes);
 });
 
-router.post('/', upload.none(), async function (req, res, next) {
+router.post('/', cors(), upload.none(), async function (req, res, next) {
     const name = req.body.name
 
     await prisma.classes.create({
@@ -27,7 +28,7 @@ router.post('/', upload.none(), async function (req, res, next) {
     res.send('Gotcha')
 })
 
-router.get('/:id(\\d+)', async function (req, res, next) {
+router.get('/:id(\\d+)', cors(), async function (req, res, next) {
     const typeId = parseInt(req.params.id)
 
     const archetype = await prisma.classes.findUnique({
@@ -39,7 +40,7 @@ router.get('/:id(\\d+)', async function (req, res, next) {
     res.send(archetype)
 })
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', cors(), async (req, res, next) => {
     const classId = parseInt(req.params.id)
 
     await prisma.classes.delete({
@@ -49,7 +50,7 @@ router.delete('/:id', async (req, res, next) => {
     res.send('Gotcha')
 })
 
-router.put('/:id(\\d+)', upload.none(), async (req, res, next) => {
+router.put('/:id(\\d+)', cors(), upload.none(), async (req, res, next) => {
     const typeId = parseInt(req.params.id)
     const name = req.body.name
 
