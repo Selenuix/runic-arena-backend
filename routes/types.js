@@ -1,12 +1,13 @@
-const express = require('express');
-const router = express.Router();
+const express = require('express')
+const cors = require('cors')
+const router = express.Router()
 const {PrismaClient} = require('@prisma/client')
 const prisma = new PrismaClient()
 
 const multer = require('multer')
 const upload = multer()
 
-router.get('/', async function (req, res, next) {
+router.get('/', cors(), async function (req, res, next) {
     const types = await prisma.types.findMany({
         orderBy: {
             name: 'asc'
@@ -15,7 +16,7 @@ router.get('/', async function (req, res, next) {
     res.send(types);
 });
 
-router.post('/', upload.none(), async function (req, res, next) {
+router.post('/', cors(), upload.none(), async function (req, res, next) {
     const name = req.body.name
 
     await prisma.types.create({
@@ -29,7 +30,7 @@ router.post('/', upload.none(), async function (req, res, next) {
 })
 
 
-router.get('/:id(\\d+)', async function (req, res, next) {
+router.get('/:id(\\d+)', cors(), async function (req, res, next) {
     const typeId = parseInt(req.params.id)
 
     const type = await prisma.types.findUnique({
@@ -41,7 +42,7 @@ router.get('/:id(\\d+)', async function (req, res, next) {
     res.send(type)
 })
 
-router.delete('/:id(\\d+)', async (req, res, next) => {
+router.delete('/:id(\\d+)', cors(), async (req, res, next) => {
     const typeId = parseInt(req.params.id)
 
     await prisma.types.delete({
@@ -51,7 +52,7 @@ router.delete('/:id(\\d+)', async (req, res, next) => {
     res.send('Gotcha')
 })
 
-router.put('/:id(\\d+)', upload.none(), async (req, res, next) => {
+router.put('/:id(\\d+)', cors(), upload.none(), async (req, res, next) => {
     const typeId = parseInt(req.params.id)
     const name = req.body.name
 

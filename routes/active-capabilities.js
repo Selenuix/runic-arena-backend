@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require('cors')
-const router = express.Router()
+const router = express.Router();
 const {PrismaClient} = require('@prisma/client')
 const multer = require("multer");
 const {extname} = require("path");
@@ -20,38 +20,27 @@ const upload = multer({
 })
 
 router.get('/', cors(), async function (req, res, next) {
-    const passiveCapabilities = await prisma.passiveCapabilities.findMany({
+    const activeCapabilities = await prisma.activeCapabilities.findMany({
         select: {
             id: true,
             name: true,
-            description: true
+            description: true,
+            type: true
         },
         orderBy: {
             name: 'asc',
         },
     });
 
-    res.send(passiveCapabilities);
-});
-
-router.post('/', cors(), upload.none(), async function (req, res, next) {
-    let {name, description} = req.body
-
-    await prisma.passiveCapabilities.create({
-        data: {
-            name: name,
-            description: description
-        }
-    })
-    res.send('Gotcha')
+    res.send(activeCapabilities);
 })
 
 router.get('/:id(\\d+)', cors(), async function (req, res, next) {
-    const passiveCapabilityId = parseInt(req.params.id)
+    const activeCapabilityId = parseInt(req.params.id)
 
-    const passiveCapability = await prisma.passiveCapabilities.findUnique({
+    const activeCapability = await prisma.activeCapabilities.findUnique({
         where: {
-            id: passiveCapabilityId,
+            id: activeCapabilityId,
         },
         select: {
             id: true,
@@ -60,28 +49,42 @@ router.get('/:id(\\d+)', cors(), async function (req, res, next) {
         }
     })
 
-    res.send(passiveCapability)
+    res.send(activeCapability)
+})
+
+router.post('/', cors(), upload.none(), async function (req, res, next) {
+    let {name, description, type} = req.body
+
+    await prisma.activeCapabilities.create({
+        data: {
+            name: name,
+            description: description,
+            type: type
+        }
+    })
+    res.send('Gotcha')
 })
 
 router.delete('/:id(\\d+)', cors(), async (req, res, next) => {
-    const passiveCapabilityId = parseInt(req.params.id)
-    await prisma.passiveCapabilities.delete({
-        where: {id: passiveCapabilityId},
+    const activeCapabilityId = parseInt(req.params.id)
+    const card = await prisma.activeCapabilities.delete({
+        where: {id: activeCapabilityId},
     })
 
     res.send('Gotcha')
 })
 
-router.patch('/:id(\\d+)', cors(), upload.none(), async (req, res, next) => {
-    const passiveCapabilityId = parseInt(req.params.id)
-    let {name, description} = req.body
+router.patch('/:id(\\d+)', cors(), async (req, res, next) => {
+    const activeCapabilityId = parseInt(req.params.id)
+    let {name, description, type} = req.body
 
-    await prisma.passiveCapabilities.update({
+    await prisma.activeCapabilities.update({
         data: {
             name: name,
-            description: description
+            description: description,
+            type: type
         },
-        where: {id: passiveCapabilityId}
+        where: {id: activeCapabilityId}
     })
 
     res.send('Gotcha')
