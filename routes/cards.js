@@ -28,24 +28,11 @@ const minioClient = new minio.Client({
 })
 
 router.get('/', cors(), async function (req, res, next) {
-    /*const cards = await prisma.cards.findMany({
-        select: {
-            id: true,
-            name: true,
-            image: true,
-            power: true,
-            type: true,
-            class: true,
-            passive_capability: true,
-            active_capabilities: true
-        },
-        orderBy: {
-            name: 'asc',
-        },
-    })*/
     const cards = await prisma.cards.findMany({
         include: {
             passive_capability: true,
+            type: true,
+            class: true,
             active_capabilities: {
                 include: {
                     active_capability: true
